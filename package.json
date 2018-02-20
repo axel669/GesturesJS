@@ -1,0 +1,34 @@
+{
+  "name": "gesturesjs",
+  "version": "0.1.0",
+  "description": "lib for creating gesture recognition",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src/gestures.es6.js -o index.js",
+    "copy": "x-copy src/gestures.es6.js es6/index.js",
+    "minify": "uglifyjs index.js -o min/index.js",
+    "release": "run-s build copy minify"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axel669/GesturesJS.git"
+  },
+  "keywords": [
+    "gesture",
+    "mobile"
+  ],
+  "author": "Axel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/axel669/GesturesJS/issues"
+  },
+  "homepage": "https://github.com/axel669/GesturesJS#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "npm-run-all": "^4.1.2",
+    "uglify-js": "^3.3.11",
+    "x-copy": "^1.0.0"
+  }
+}
