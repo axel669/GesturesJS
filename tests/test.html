@@ -11,6 +11,25 @@
             margin: 0px;
             padding: 0px;
         }
+
+        doric-button {
+            position: relative;
+            top: 0px;
+            left: 0px;
+            display: inline-block;
+            padding: 5px 10px;
+        }
+        doric-button::after {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            content: '';
+        }
+        doric-button[data-touch-active]::after {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
         </style>
     </head>
     <body>
@@ -20,5 +39,6 @@
         <div style="height: 800px;">
             <input type="number" />
         </div>
+        <doric-button>Test</doric-button>
     </body>
 </html>
