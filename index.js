@@ -1,6 +1,5 @@
 'use strict';
 
-console.log('ready');
 (function () {
     var isMobile = typeof orientation !== 'undefined' || navigator.userAgent.indexOf("Mobile") !== -1;
     var forEach = Array.prototype.forEach;
@@ -342,10 +341,16 @@ console.log('ready');
             }
         };
     });
-})();
 
-// window.addEventListener('tap', evt => console.log(evt));
-// window.addEventListener('hold', evt => console.log(evt));
-// window.addEventListener('touchstart', evt => console.log(evt), true);
-// window.addEventListener('touchmove', evt => console.log(evt));
-// window.addEventListener('swipe', evt => console.log(evt), true);
+    var lib = {
+        addHandler: addHandler,
+        createEvent: createEvent,
+        copyTouchEvent: copyTouchEvent
+    };
+
+    if (typeof module !== 'undefined') {
+        module.exports = lib;
+    } else {
+        window.gesturesJS = lib;
+    }
+})();
