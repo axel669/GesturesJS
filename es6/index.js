@@ -192,20 +192,16 @@
     addHandler(
         'tap',
         () => {
-            const pathAdd = path => {
-                for (const elem of path) {
-                    if (elem === document.body) {
-                        break;
-                    }
+            const pathAdd = elem => {
+                while (elem !== null && elem !== document.documentElement) {
                     elem.setAttribute("data-touch-active", '');
+                    elem = elem.parentNode;
                 }
             };
-            const pathRemove = path => {
-                for (const elem of path) {
-                    if (elem === document.body) {
-                        break;
-                    }
+            const pathRemove = elem => {
+                while (elem !== null && elem !== document.documentElement) {
                     elem.removeAttribute("data-touch-active");
+                    elem = elem.parentNode;
                 }
             };
             return {
@@ -215,7 +211,7 @@
                             touch.vars.tapValid = true;
                             touch.vars.tapManage = touch.target.hasAttribute('data-touch-active') === false;
                             if (touch.vars.tapManage === true) {
-                                pathAdd(touch.path);
+                                pathAdd(touch.target);
                             }
                         }
                     );
@@ -226,7 +222,7 @@
                             if (touch.vars.vector.magnitude > 20) {
                                 touch.vars.tapValid = false;
                                 if (touch.vars.tapManage === true) {
-                                    pathRemove(touch.path);
+                                    pathRemove(touch.target);
                                     touch.vars.tapManage = false;
                                 }
                             }
@@ -237,7 +233,7 @@
                     touches.forEach(
                         touch => {
                             if (touch.vars.tapManage === true) {
-                                pathRemove(touch.path);
+                                pathRemove(touch.target);
                             }
                             if (touch.vars.vector.magnitude > 20) {
                                 return;

@@ -165,62 +165,16 @@
     }
 
     addHandler('tap', function () {
-        var pathAdd = function pathAdd(path) {
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
-
-            try {
-                for (var _iterator = path[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                    var elem = _step.value;
-
-                    if (elem === document.body) {
-                        break;
-                    }
-                    elem.setAttribute("data-touch-active", '');
-                }
-            } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion && _iterator.return) {
-                        _iterator.return();
-                    }
-                } finally {
-                    if (_didIteratorError) {
-                        throw _iteratorError;
-                    }
-                }
+        var pathAdd = function pathAdd(elem) {
+            while (elem !== null && elem !== document.documentElement) {
+                elem.setAttribute("data-touch-active", '');
+                elem = elem.parentNode;
             }
         };
-        var pathRemove = function pathRemove(path) {
-            var _iteratorNormalCompletion2 = true;
-            var _didIteratorError2 = false;
-            var _iteratorError2 = undefined;
-
-            try {
-                for (var _iterator2 = path[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-                    var elem = _step2.value;
-
-                    if (elem === document.body) {
-                        break;
-                    }
-                    elem.removeAttribute("data-touch-active");
-                }
-            } catch (err) {
-                _didIteratorError2 = true;
-                _iteratorError2 = err;
-            } finally {
-                try {
-                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
-                        _iterator2.return();
-                    }
-                } finally {
-                    if (_didIteratorError2) {
-                        throw _iteratorError2;
-                    }
-                }
+        var pathRemove = function pathRemove(elem) {
+            while (elem !== null && elem !== document.documentElement) {
+                elem.removeAttribute("data-touch-active");
+                elem = elem.parentNode;
             }
         };
         return {
@@ -229,7 +183,7 @@
                     touch.vars.tapValid = true;
                     touch.vars.tapManage = touch.target.hasAttribute('data-touch-active') === false;
                     if (touch.vars.tapManage === true) {
-                        pathAdd(touch.path);
+                        pathAdd(touch.target);
                     }
                 });
             },
@@ -238,7 +192,7 @@
                     if (touch.vars.vector.magnitude > 20) {
                         touch.vars.tapValid = false;
                         if (touch.vars.tapManage === true) {
-                            pathRemove(touch.path);
+                            pathRemove(touch.target);
                             touch.vars.tapManage = false;
                         }
                     }
@@ -247,7 +201,7 @@
             end: function end(touches, evt) {
                 touches.forEach(function (touch) {
                     if (touch.vars.tapManage === true) {
-                        pathRemove(touch.path);
+                        pathRemove(touch.target);
                     }
                     if (touch.vars.vector.magnitude > 20) {
                         return;
