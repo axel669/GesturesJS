@@ -190,17 +190,65 @@
     }
 
     addHandler(
-        'tap',
+        'active-touch',
         () => {
+            const count = (() => {
+                const tracker = new WeakMap();
+
+                return {
+                    inc(elem) {
+                        const count = tracker.get(elem) || 0;
+                        tracker.set(elem, count + 1);
+                    },
+                    dec(elem) {
+                        const count = tracker.get(elem);
+                        tracker.set(elem, count - 1);
+                        return count - 1;
+                    }
+                };
+            })();
+            const className = 'data-touch-active';
             const pathAdd = elem => {
                 while (elem !== null && elem !== document.documentElement) {
-                    elem.setAttribute("data-touch-active", '');
+                    elem.setAttribute(className, '');
+                    count.inc(elem);
                     elem = elem.parentNode;
                 }
             };
             const pathRemove = elem => {
                 while (elem !== null && elem !== document.documentElement) {
-                    elem.removeAttribute("data-touch-active");
+                    const left = count.dec(elem);
+                    if (left === 0) {
+                        elem.removeAttribute(className);
+                    }
+                    elem = elem.parentNode;
+                }
+            };
+
+            return {
+                start(touches) {
+                    touches.forEach(touch => pathAdd(touch.target));
+                },
+                move(touches) {},
+                end(touches) {
+                    touches.forEach(touch => pathRemove(touch.target));
+                }
+            };
+        }
+    );
+    addHandler(
+        'tap',
+        () => {
+            const className = 'data-tap-active';
+            const pathAdd = elem => {
+                while (elem !== null && elem !== document.documentElement) {
+                    elem.setAttribute(className, '');
+                    elem = elem.parentNode;
+                }
+            };
+            const pathRemove = elem => {
+                while (elem !== null && elem !== document.documentElement) {
+                    elem.removeAttribute(className);
                     elem = elem.parentNode;
                 }
             };
@@ -209,7 +257,7 @@
                     touches.forEach(
                         touch => {
                             touch.vars.tapValid = true;
-                            touch.vars.tapManage = touch.target.hasAttribute('data-touch-active') === false;
+                            touch.vars.tapManage = touch.target.hasAttribute(className) === false;
                             if (touch.vars.tapManage === true) {
                                 pathAdd(touch.target);
                             }

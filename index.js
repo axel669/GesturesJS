@@ -164,16 +164,65 @@
         }, true);
     }
 
-    addHandler('tap', function () {
+    addHandler('active-touch', function () {
+        var count = function () {
+            var tracker = new WeakMap();
+
+            return {
+                inc: function inc(elem) {
+                    var count = tracker.get(elem) || 0;
+                    tracker.set(elem, count + 1);
+                },
+                dec: function dec(elem) {
+                    var count = tracker.get(elem);
+                    tracker.set(elem, count - 1);
+                    return count - 1;
+                }
+            };
+        }();
+        var className = 'data-touch-active';
         var pathAdd = function pathAdd(elem) {
             while (elem !== null && elem !== document.documentElement) {
-                elem.setAttribute("data-touch-active", '');
+                elem.setAttribute(className, '');
+                count.inc(elem);
                 elem = elem.parentNode;
             }
         };
         var pathRemove = function pathRemove(elem) {
             while (elem !== null && elem !== document.documentElement) {
-                elem.removeAttribute("data-touch-active");
+                var left = count.dec(elem);
+                if (left === 0) {
+                    elem.removeAttribute(className);
+                }
+                elem = elem.parentNode;
+            }
+        };
+
+        return {
+            start: function start(touches) {
+                touches.forEach(function (touch) {
+                    return pathAdd(touch.target);
+                });
+            },
+            move: function move(touches) {},
+            end: function end(touches) {
+                touches.forEach(function (touch) {
+                    return pathRemove(touch.target);
+                });
+            }
+        };
+    });
+    addHandler('tap', function () {
+        var className = 'data-tap-active';
+        var pathAdd = function pathAdd(elem) {
+            while (elem !== null && elem !== document.documentElement) {
+                elem.setAttribute(className, '');
+                elem = elem.parentNode;
+            }
+        };
+        var pathRemove = function pathRemove(elem) {
+            while (elem !== null && elem !== document.documentElement) {
+                elem.removeAttribute(className);
                 elem = elem.parentNode;
             }
         };
@@ -181,7 +230,7 @@
             start: function start(touches) {
                 touches.forEach(function (touch) {
                     touch.vars.tapValid = true;
-                    touch.vars.tapManage = touch.target.hasAttribute('data-touch-active') === false;
+                    touch.vars.tapManage = touch.target.hasAttribute(className) === false;
                     if (touch.vars.tapManage === true) {
                         pathAdd(touch.target);
                     }
