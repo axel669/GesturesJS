@@ -259,7 +259,6 @@
                         return;
                     }
                     var synthEvent = createEvent('tap', copyTouchEvent(touch));
-                    evt.preventDefault();
                     delay(function () {
                         if (touch.target.dispatchEvent(synthEvent) === true) {
                             touch.target.focus();

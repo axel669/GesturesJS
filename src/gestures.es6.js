@@ -290,7 +290,6 @@
                                 return;
                             }
                             const synthEvent = createEvent('tap', copyTouchEvent(touch));
-                            evt.preventDefault();
                             delay(
                                 () => {
                                     if (touch.target.dispatchEvent(synthEvent) === true) {
