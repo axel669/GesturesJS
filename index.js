@@ -86,7 +86,9 @@
     window.addEventListener('touchmove', function (evt) {
         var touches = toArray(evt.changedTouches);
         touches.forEach(function (touch) {
-            touch.timestamp = evt.timeStamp;
+            // touch.timestamp = evt.timeStamp;
+            //  Changed from evt.timestamp, thanks firefox for messing with the property
+            touch.timestamp = Date.now();
             var _vars = vars[touch.identifier];
             _vars.vector = polarVector(touch.clientX, touch.clientY, _vars.start.clientX, _vars.start.clientY);
             touch.vars = _vars;
@@ -99,7 +101,9 @@
     window.addEventListener('touchend', function (evt) {
         var touches = toArray(evt.changedTouches);
         touches.forEach(function (touch) {
-            touch.timestamp = evt.timeStamp;
+            // touch.timestamp = evt.timeStamp;
+            //  Changed from evt.timestamp, thanks firefox for messing with the property
+            touch.timestamp = Date.now();
             var _vars = vars[touch.identifier];
             _vars.vector = polarVector(touch.clientX, touch.clientY, _vars.start.clientX, _vars.start.clientY);
             touch.vars = _vars;
