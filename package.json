@@ -1,6 +1,6 @@
 {
   "name": "gesturesjs",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "lib for creating gesture recognition",
   "main": "index.js",
   "scripts": {

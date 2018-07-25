@@ -66,7 +66,9 @@
         evt => {
             const touches = toArray(evt.changedTouches);
             touches.forEach(touch => {
-                touch.timestamp = evt.timeStamp;
+                // touch.timestamp = evt.timeStamp;
+                //  Changed from evt.timestamp, thanks firefox for messing with the property
+                touch.timestamp = Date.now();
                 vars[touch.identifier] = {
                     start: touch
                 };
