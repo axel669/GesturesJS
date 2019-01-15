@@ -30,6 +30,8 @@ let copyTouchEvent = (touch) => {
     touch.pageY
     touch.screenX
     touch.screenY
+    touch.identifier
+    id: touch.identifier
 }
 
 let delay = (func) => setTimeout(func, 0)
@@ -43,7 +45,7 @@ let polarVector = (a, b) => {
         * (180 / Math.PI)
         + 270
     ) % 360
-    let magnitude = Masth.sqrt(dx ** 2 + dy ** 2)
+    let magnitude = Math.sqrt(dx ** 2 + dy ** 2)
 
     return {angle, magnitude}
 }
@@ -65,18 +67,17 @@ window.addEventListener(
         let touches = [...evt.changedTouches]
         for touch in touches {
             touch.timestamp = Date.now()
-            touch.id = touch.identifier
-            sharedVars[touch.id] = {start: touch}
+            sharedVars[touch.identifier] = {start: touch}
         }
         for [name, handler] in handlers {
             handler.start?(
                 touches.map((touch) => {
-                    touchVars[name][touch.id] = {}
+                    touchVars[name][touch.identifier] = {}
                     return {
-                        ...touch
+                        ...copyTouchEvent(touch)
                         vars: {
-                            ...touchVars[name][touch.id]
-                            ...sharedVars[touch.id]
+                            ...touchVars[name][touch.identifier]
+                            ...sharedVars[touch.identifier]
                         }
                     }
                 })
@@ -91,7 +92,7 @@ window.addEventListener(
     (evt) => {
         let touches = [...evt.changedTouches]
         for touch in touches {
-            let shared = sharedVars[touch.id]
+            let shared = sharedVars[touch.identifier]
             touch.timestamp = Date.now()
             shared.vector = polarVector(
                 touch
@@ -101,10 +102,10 @@ window.addEventListener(
         for [name, handler] in handlers {
             handler.move?(
                 touches.map((touch) => {
-                    ...touch
+                    ...copyTouchEvent(touch)
                     vars: {
-                        ...touchVars[name][touch.id]
-                        ...sharedVars[touch.id]
+                        ...touchVars[name][touch.identifier]
+                        ...sharedVars[touch.identifier]
                     }
                 })
                 evt
@@ -120,7 +121,8 @@ addHandler(
             console.log(touches)
         }
         move(touches) => {
-            console.log(touches)
+            // console.log(touches)
+            console.log(touches[0].vars.vector)
         }
     }
 )
