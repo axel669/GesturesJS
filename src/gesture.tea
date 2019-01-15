@@ -1,0 +1,126 @@
+let isMobile = typeof orientation != "undefined"
+    || navigator.userAgent.indexOf("Mobile") != -1
+let handlers = Map*()
+
+let touchVars = {}
+let addHandler = (name, handler) => {
+    if typeof handler == "function" {
+        handler = handler()
+    }
+
+    handlers.set(name, handler)
+    touchVars[name] = {}
+}
+let createEvent = (type, source) => {
+    let newEvt = CustomeEvent*(
+        type
+        {bubbles: true, cancelable: true}
+    )
+
+    for prop, value of source {
+        newEvt[prop] = value
+    }
+
+    return newEvt
+}
+let copyTouchEvent = (touch) => {
+    touch.clientX
+    touch.clientY
+    touch.pageX
+    touch.pageY
+    touch.screenX
+    touch.screenY
+}
+
+let delay = (func) => setTimeout(func, 0)
+
+let polarVector = (a, b) => {
+    let dx = b.clientX - a.clientX
+    let dy = b.clientY - a.clientY
+
+    let angle = (
+        Math.atan2(dy, dx)
+        * (180 / Math.PI)
+        + 270
+    ) % 360
+    let magnitude = Masth.sqrt(dx ** 2 + dy ** 2)
+
+    return {angle, magnitude}
+}
+
+let sharedVars = {}
+let convertTouches = (source) => {
+    let touches = [...source]
+
+    for touch in touches {
+        touch.timestamp = Date.now()
+        touch.id = touch.identifier
+    }
+
+    return touches
+}
+window.addEventListener(
+    "touchstart"
+    (evt) => {
+        let touches = [...evt.changedTouches]
+        for touch in touches {
+            touch.timestamp = Date.now()
+            touch.id = touch.identifier
+            sharedVars[touch.id] = {start: touch}
+        }
+        for [name, handler] in handlers {
+            handler.start?(
+                touches.map((touch) => {
+                    touchVars[name][touch.id] = {}
+                    return {
+                        ...touch
+                        vars: {
+                            ...touchVars[name][touch.id]
+                            ...sharedVars[touch.id]
+                        }
+                    }
+                })
+                evt
+            )
+        }
+    }
+    false
+)
+window.addEventListener(
+    "touchmove"
+    (evt) => {
+        let touches = [...evt.changedTouches]
+        for touch in touches {
+            let shared = sharedVars[touch.id]
+            touch.timestamp = Date.now()
+            shared.vector = polarVector(
+                touch
+                shared.start
+            )
+        }
+        for [name, handler] in handlers {
+            handler.move?(
+                touches.map((touch) => {
+                    ...touch
+                    vars: {
+                        ...touchVars[name][touch.id]
+                        ...sharedVars[touch.id]
+                    }
+                })
+                evt
+            )
+        }
+    }
+)
+
+addHandler(
+    "active-touch"
+    () => {
+        start(touches) => {
+            console.log(touches)
+        }
+        move(touches) => {
+            console.log(touches)
+        }
+    }
+)

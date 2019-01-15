@@ -4,7 +4,7 @@
         <title>Test</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-        <script src="../index.js"></script>
+        <script src="../browser/gesture.js"></script>
         <style>
         html, body {
             width: 100%;
@@ -41,5 +41,23 @@
             <input type="number" />
         </div>
         <doric-button>Test</doric-button>
+        <script>
+        // window.addEventListener(
+        //     "touchstart",
+        //     evt => {
+        //         console.time("test");
+        //         let touches = [...evt.changedTouches];
+        //         let t = null;
+        //         for (let i = 0; i < 1000; i += 1) {
+        //             t = touches.map(
+        //                 touch => ({...touch, vars: {}})
+        //             );
+        //         }
+        //         console.timeEnd("test");
+        //         // console.log(evt.changedTouches);
+        //         // console.log([...evt.changedTouches]);
+        //     }
+        // );
+        </script>
     </body>
 </html>
