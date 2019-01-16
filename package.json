@@ -8,7 +8,8 @@
     "build": "babel src/gestures.es6.js -o index.js",
     "copy": "x-copy src/gestures.es6.js es6/index.js",
     "minify": "uglifyjs index.js -o min/index.js",
-    "release": "run-s build copy minify"
+    "release": "run-s build copy minify",
+    "test-server": "static -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}' -p 80"
   },
   "repository": {
     "type": "git",

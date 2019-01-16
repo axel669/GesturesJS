@@ -12,7 +12,7 @@ let addHandler = (name, handler) => {
     touchVars[name] = {}
 }
 let createEvent = (type, source) => {
-    let newEvt = CustomeEvent*(
+    let newEvt = CustomEvent*(
         type
         {bubbles: true, cancelable: true}
     )
@@ -31,6 +31,8 @@ let copyTouchEvent = (touch) => {
     touch.screenX
     touch.screenY
     touch.identifier
+    touch.target
+    touch.sourceElement
     id: touch.identifier
 }
 
@@ -43,7 +45,7 @@ let polarVector = (a, b) => {
     let angle = (
         Math.atan2(dy, dx)
         * (180 / Math.PI)
-        + 270
+        + 450
     ) % 360
     let magnitude = Math.sqrt(dx ** 2 + dy ** 2)
 
@@ -61,6 +63,30 @@ let convertTouches = (source) => {
 
     return touches
 }
+let touchMapper = (name, reset = false) =>
+    (touch) => {
+        if (reset == true) {
+            touchVars[name][touch.identifier] = {}
+        }
+        return {
+            ...copyTouchEvent(touch)
+            vars: {
+                ...touchVars[name][touch.identifier]
+                ...sharedVars[touch.identifier]
+            }
+        }
+    }
+let handleTouchList = (list, individual, touches, evt) => {
+    if list != void {
+        list(touches, evt)
+    }
+    if individual == void {
+        return
+    }
+    for touch in touches {
+        individual(touch, evt)
+    }
+}
 window.addEventListener(
     "touchstart"
     (evt) => {
@@ -70,17 +96,12 @@ window.addEventListener(
             sharedVars[touch.identifier] = {start: touch}
         }
         for [name, handler] in handlers {
-            handler.start?(
-                touches.map((touch) => {
-                    touchVars[name][touch.identifier] = {}
-                    return {
-                        ...copyTouchEvent(touch)
-                        vars: {
-                            ...touchVars[name][touch.identifier]
-                            ...sharedVars[touch.identifier]
-                        }
-                    }
-                })
+            handleTouchList(
+                handler.start
+                handler.startItem
+                touches.map(
+                    touchMapper(name, true)
+                )
                 evt
             )
         }
@@ -95,34 +116,124 @@ window.addEventListener(
             let shared = sharedVars[touch.identifier]
             touch.timestamp = Date.now()
             shared.vector = polarVector(
-                touch
                 shared.start
+                touch
             )
         }
         for [name, handler] in handlers {
-            handler.move?(
-                touches.map((touch) => {
-                    ...copyTouchEvent(touch)
-                    vars: {
-                        ...touchVars[name][touch.identifier]
-                        ...sharedVars[touch.identifier]
-                    }
-                })
+            handleTouchList(
+                handler.move
+                handler.moveItem
+                touches.map(
+                    touchMapper(name)
+                )
+                evt
+            )
+        }
+    }
+)
+window.addEventListener(
+    "touchend"
+    (evt) => {
+        let touches = [...evt.changedTouches]
+        for touch in touches {
+            let shared = sharedVars[touch.identifier]
+            touch.timestamp = Date.now()
+            shared.vector = polarVector(
+                shared.start
+                touch
+            )
+        }
+        for [name, handler] in handlers {
+            handleTouchList(
+                handler.end
+                handler.endItem
+                touches.map(
+                    touchMapper(name)
+                )
                 evt
             )
         }
     }
 )
 
+if isMobile == false {
+    console.log("GesturesJS will attach non-mobile listeners")
+    let createSynthTouch = (mouseEvt) => {
+        ...copyTouchEvent(mouseEvt)
+        identifier: -10
+        id: 10
+        target: currentMouseTarget
+        suorceElement: currentMouseTarget
+    }
+
+    let mut currentMouseTarget = null
+    let mut mouseIsDown = false
+
+    let dispatchSyntheticEvent = (evt, type) => {
+        let changedTouches = [createSynthTouch(evt)]
+        evt.target.dispatchEvent(
+            createEvent(
+                type
+                {
+                    changedTouches
+                    touches: changedTouches
+                    syntheticEvent: true
+                }
+            )
+        )
+    }
+
+    window.addEventListener(
+        "mousedown"
+        (evt) => {
+            if evt.button == 0 {
+                mouseIsDown = true
+                currentMouseTarget = evt.target
+                dispatchSyntheticEvent(evt, "touchstart")
+            }
+        }
+        true
+    )
+    window.addEventListener(
+        "mousemove"
+        (evt) => {
+            if mouseIsDown == true {
+                dispatchSyntheticEvent(evt, "touchmove")
+            }
+        }
+        true
+    )
+    window.addEventListener(
+        "mouseup"
+        (evt) => {
+            if evt.button == 0 && mouseIsDown == true {
+                mouseIsDown = false
+                dispatchSyntheticEvent(evt, "touchend")
+                currentMouseTarget = null
+            }
+        }
+        true
+    )
+}
+
 addHandler(
     "active-touch"
     () => {
-        start(touches) => {
-            console.log(touches)
+        let counts = WeakMap*()
+
+        let inc = (elem) => {
+            let count = counts.get(elem) ?? 0
+            counts.set(elem, count + 1)
         }
-        move(touches) => {
-            // console.log(touches)
-            console.log(touches[0].vars.vector)
+        let dec = (elem) => {
+            let newCount = counts.get(elem) - 1
+            counts.set(elem, newCount)
+            return newCount
+        }
+
+        return {
+            moveItem(touch) => console.log(touch.vars.vector)
         }
     }
 )
