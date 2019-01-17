@@ -35,6 +35,16 @@ let copyTouchEvent = (touch) => {
     touch.sourceElement
     id: touch.identifier
 }
+let copyForSynth = (touch) => {
+    touch.clientX
+    touch.clientY
+    touch.pageX
+    touch.pageY
+    touch.screenX
+    touch.screenY
+    touch.identifier
+    id: touch.identifier
+}
 
 let delay = (func) => setTimeout(func, 0)
 
@@ -68,12 +78,13 @@ let touchMapper = (name, reset = false) =>
         if (reset == true) {
             touchVars[name][touch.identifier] = {}
         }
+        touchVars[name][touch.identifier] = {
+            ...touchVars[name][touch.identifier]
+            ...sharedVars[touch.identifier]
+        }
         return {
             ...copyTouchEvent(touch)
-            vars: {
-                ...touchVars[name][touch.identifier]
-                ...sharedVars[touch.identifier]
-            }
+            vars: touchVars[name][touch.identifier]
         }
     }
 let handleTouchList = (list, individual, touches, evt) => {
@@ -217,23 +228,104 @@ if isMobile == false {
     )
 }
 
+let climbDOM = (start, func) => {
+    let mut current = start
+    while current != null && current != document.documentElement {
+        func(current)
+        current = current.parentNode
+    }
+}
 addHandler(
     "active-touch"
     () => {
-        let counts = WeakMap*()
+        let attrName = "gjs:touchActive"
+        let activeTouches = WeakMap*()
 
         let inc = (elem) => {
-            let count = counts.get(elem) ?? 0
-            counts.set(elem, count + 1)
+            let count = activeTouches.get(elem) ?? 0
+            activeTouches.set(elem, count + 1)
         }
         let dec = (elem) => {
-            let newCount = counts.get(elem) - 1
-            counts.set(elem, newCount)
+            let newCount = activeTouches.get(elem) - 1
+            activeTouches.set(elem, newCount)
             return newCount
         }
 
         return {
-            moveItem(touch) => console.log(touch.vars.vector)
+            startItem(touch) =>
+                climbDOM(
+                    touch.target
+                    (node) => {
+                        node.dataset[attrName] = ""
+                        inc(node)
+                    }
+                )
+            endItem(touch) =>
+                climbDOM(
+                    touch.target
+                    (node) => {
+                        if (dec(node) == 0) {
+                            delete node.dataset[attrName]
+                        }
+                    }
+                )
         }
     }
 )
+addHandler(
+    "tap"
+    () => {
+        let attrName = "gjs:tapActive"
+
+        return {
+            startItem(touch) => {
+                if touch.target.dataset[attrName] == void {
+                    touch.vars.valid = true
+                    touch.vars.active = true
+                    climbDOM(
+                        touch.target
+                        (node) => {
+                            node.dataset[attrName] = ""
+                        }
+                    )
+                }
+            }
+            moveItem(touch) => {
+                if touch.vars.active == true && touch.vars.vector.magnitude > 20 {
+                    touch.vars.valid = false
+                    climbDOM(
+                        touch.target
+                        (node) => {
+                            delete node.dataset[attrName]
+                        }
+                    )
+                }
+            }
+            endItem(touch) => {
+                if touch.vars.active == true {
+                    climbDOM(
+                        touch.target
+                        (node) => {
+                            delete node.dataset[attrName]
+                        }
+                    )
+                }
+                let duration = touch.timestamp - touch.vars.start.timestamp
+                if touch.vars.vector.magnitude > 20 || duration > 600 {
+                    return
+                }
+
+                let synthEvent = createEvent("tap", copyForSynth(touch))
+                delay(
+                    () => {
+                        if touch.target.dispatchEvent(synthEvent) == true {
+                            touch.target.focus()
+                        }
+                    }
+                )
+            }
+        }
+    }
+)
+
+export default addHandler
