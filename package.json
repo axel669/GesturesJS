@@ -1,15 +1,11 @@
 {
   "name": "gesturesjs",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "lib for creating gesture recognition",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src/gestures.es6.js -o index.js",
-    "copy": "x-copy src/gestures.es6.js es6/index.js",
-    "minify": "uglifyjs index.js -o min/index.js",
-    "release": "run-s build copy minify",
-    "test-server": "static -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}' -p 80"
+    "build": "rollup -c && rollup -c rollup.min.config.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +24,8 @@
   "devDependencies": {
     "@axel669/teascript": "^0.13.1",
     "rollup": "^1.1.0"
+  },
+  "dependencies": {
+    "rollup-plugin-terser": "^4.0.2"
   }
 }

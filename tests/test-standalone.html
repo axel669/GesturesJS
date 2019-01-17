@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+        <script src="https://unpkg.com/@axel669/teascript@0.13.1/browser/transpiler.js"></script>
+        <script src="../standalone/gesture.min.js"></script>
+        <style>
+        html, body {
+            width: 100%;
+            /* height: 100%; */
+            margin: 0px;
+            padding: 0px;
+        }
+
+        doric-button {
+            position: relative;
+            top: 0px;
+            left: 0px;
+            display: inline-block;
+            padding: 5px 10px;
+        }
+        doric-button::after {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            bottom: 0px;
+            right: 0px;
+            content: '';
+        }
+        doric-button[data-tap-active]::after {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        </style>
+    </head>
+    <body>
+        <input type="text" />
+        <br />
+        <button>Test</button>
+        <div style="height: 80px;">
+            <input type="number" />
+        </div>
+        <doric-button tabindex="0">Test</doric-button>
+        <script>
+        Gestures(
+            "testing",
+            () => ({
+                startItem(touch) {
+                    console.log(touch);
+                },
+                move(touches) {
+                    console.log(touches);
+                }
+            })
+        );
+        // window.addEventListener(
+        //     "touchstart",
+        //     evt => {
+        //         console.time("test");
+        //         let touches = [...evt.changedTouches];
+        //         let t = null;
+        //         for (let i = 0; i < 1000; i += 1) {
+        //             t = touches.map(
+        //                 touch => ({...touch, vars: {}})
+        //             );
+        //         }
+        //         console.timeEnd("test");
+        //         // console.log(evt.changedTouches);
+        //         // console.log([...evt.changedTouches]);
+        //     }
+        // );
+        </script>
+    </body>
+</html>

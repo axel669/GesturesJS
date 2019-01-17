@@ -150,7 +150,7 @@ var Gesture = (function () {
         let mouseIsDown = false;
         const dispatchSyntheticEvent = (evt, type) => {
             const changedTouches = [createSynthTouch(evt)];
-            evt.target.dispatchEvent(
+            currentMouseTarget.dispatchEvent(
                 createEvent(type, {
                     changedTouches: changedTouches,
                     touches: changedTouches,
@@ -228,14 +228,18 @@ var Gesture = (function () {
     });
     addHandler("tap", () => {
         const attrName = "gjs:tapActive";
+        const addAttr = (node) => {
+            node.dataset[attrName] = ``;
+        };
+        const removeAttr = (node) => {
+            delete node.dataset[attrName];
+        };
         return {
             startItem: (touch) => {
                 if (touch.target.dataset[attrName] === undefined) {
                     touch.vars.valid = true;
                     touch.vars.active = true;
-                    climbDOM(touch.target, (node) => {
-                        node.dataset[attrName] = ``;
-                    });
+                    climbDOM(touch.target, addAttr);
                 }
             },
             moveItem: (touch) => {
@@ -244,16 +248,12 @@ var Gesture = (function () {
                     touch.vars.vector.magnitude > 20
                 ) {
                     touch.vars.valid = false;
-                    climbDOM(touch.target, (node) => {
-                        delete node.dataset[attrName];
-                    });
+                    climbDOM(touch.target, removeAttr);
                 }
             },
             endItem: (touch) => {
                 if (touch.vars.active === true) {
-                    climbDOM(touch.target, (node) => {
-                        delete node.dataset[attrName];
-                    });
+                    climbDOM(touch.target, removeAttr);
                 }
                 const duration = touch.timestamp - touch.vars.start.timestamp;
                 if (touch.vars.vector.magnitude > 20 || duration > 600) {
@@ -266,6 +266,30 @@ var Gesture = (function () {
                     }
                 });
             }
+        };
+    });
+    addHandler("hold", () => {
+        const timers = {};
+        const schedule = (touch) => {
+            timers[touch.id] = setTimeout(() => {
+                timers[touch.id] = null;
+                touch.target.dispatchEvent(
+                    createEvent("hold", copyForSynth(touch))
+                );
+            }, 1500);
+        };
+        const clear = (touch) => {
+            clearTimeout(timers[touch.id]);
+            timers[touch.id] = null;
+        };
+        return {
+            startItem: (touch) => schedule(touch),
+            moveItem: (touch) => {
+                if (touch.vars.vector.magnitude > 20) {
+                    clear(touch);
+                }
+            },
+            endItem: (touch) => clear(touch)
         };
     });
 

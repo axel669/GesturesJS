@@ -183,7 +183,7 @@ if isMobile == false {
 
     let dispatchSyntheticEvent = (evt, type) => {
         let changedTouches = [createSynthTouch(evt)]
-        evt.target.dispatchEvent(
+        currentMouseTarget.dispatchEvent(
             createEvent(
                 type
                 {
@@ -276,39 +276,30 @@ addHandler(
     "tap"
     () => {
         let attrName = "gjs:tapActive"
+        let addAttr = (node) => {
+            node.dataset[attrName] = ""
+        }
+        let removeAttr = (node) => {
+            delete node.dataset[attrName]
+        }
 
         return {
             startItem(touch) => {
                 if touch.target.dataset[attrName] == void {
                     touch.vars.valid = true
                     touch.vars.active = true
-                    climbDOM(
-                        touch.target
-                        (node) => {
-                            node.dataset[attrName] = ""
-                        }
-                    )
+                    climbDOM(touch.target, addAttr)
                 }
             }
             moveItem(touch) => {
                 if touch.vars.active == true && touch.vars.vector.magnitude > 20 {
                     touch.vars.valid = false
-                    climbDOM(
-                        touch.target
-                        (node) => {
-                            delete node.dataset[attrName]
-                        }
-                    )
+                    climbDOM(touch.target, removeAttr)
                 }
             }
             endItem(touch) => {
                 if touch.vars.active == true {
-                    climbDOM(
-                        touch.target
-                        (node) => {
-                            delete node.dataset[attrName]
-                        }
-                    )
+                    climbDOM(touch.target, removeAttr)
                 }
                 let duration = touch.timestamp - touch.vars.start.timestamp
                 if touch.vars.vector.magnitude > 20 || duration > 600 {
@@ -324,6 +315,37 @@ addHandler(
                     }
                 )
             }
+        }
+    }
+)
+addHandler(
+    "hold"
+    () => {
+        let timers = {}
+        let schedule = (touch) => {
+            timers[touch.id] = setTimeout(
+                () => {
+                    timers[touch.id] = null
+                    touch.target.dispatchEvent(
+                        createEvent("hold", copyForSynth(touch))
+                    )
+                }
+                1500
+            )
+        }
+        let clear = (touch) => {
+            clearTimeout(timers[touch.id])
+            timers[touch.id] = null
+        }
+
+        return {
+            startItem(touch) => schedule(touch)
+            moveItem(touch) => {
+                if touch.vars.vector.magnitude > 20 {
+                    clear(touch)
+                }
+            }
+            endItem(touch) => clear(touch)
         }
     }
 )
