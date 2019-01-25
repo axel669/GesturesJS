@@ -238,7 +238,7 @@ let climbDOM = (start, func) => {
 addHandler(
     "active-touch"
     () => {
-        let attrName = "gjs:touchActive"
+        let className = "gjs-touch-active"
         let activeTouches = WeakMap*()
 
         let inc = (elem) => {
@@ -256,7 +256,7 @@ addHandler(
                 climbDOM(
                     touch.target
                     (node) => {
-                        node.dataset[attrName] = ""
+                        node.classList.add(className)
                         inc(node)
                     }
                 )
@@ -265,7 +265,7 @@ addHandler(
                     touch.target
                     (node) => {
                         if (dec(node) == 0) {
-                            delete node.dataset[attrName]
+                            node.classList.remove(className)
                         }
                     }
                 )
@@ -275,31 +275,31 @@ addHandler(
 addHandler(
     "tap"
     () => {
-        let attrName = "gjs:tapActive"
-        let addAttr = (node) => {
-            node.dataset[attrName] = ""
+        let className = "gjs-tap-active"
+        let addClass = (node) => {
+            node.classList.add(className)
         }
-        let removeAttr = (node) => {
-            delete node.dataset[attrName]
+        let removeClass = (node) => {
+            node.classList.remove(className)
         }
 
         return {
             startItem(touch) => {
-                if touch.target.dataset[attrName] == void {
+                if touch.target.classList.contains(className) == false {
                     touch.vars.valid = true
                     touch.vars.active = true
-                    climbDOM(touch.target, addAttr)
+                    climbDOM(touch.target, addClass)
                 }
             }
             moveItem(touch) => {
                 if touch.vars.active == true && touch.vars.vector.magnitude > 20 {
                     touch.vars.valid = false
-                    climbDOM(touch.target, removeAttr)
+                    climbDOM(touch.target, removeClass)
                 }
             }
             endItem(touch) => {
                 if touch.vars.active == true {
-                    climbDOM(touch.target, removeAttr)
+                    climbDOM(touch.target, removeClass)
                 }
                 let duration = touch.timestamp - touch.vars.start.timestamp
                 if touch.vars.vector.magnitude > 20 || duration > 600 {

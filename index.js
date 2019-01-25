@@ -197,7 +197,7 @@ const climbDOM = (start, func) => {
     }
 };
 addHandler("active-touch", () => {
-    const attrName = "gjs:touchActive";
+    const className = "gjs-touch-active";
     const activeTouches = new WeakMap();
     const inc = (elem) => {
         var nullref0;
@@ -214,31 +214,31 @@ addHandler("active-touch", () => {
     return {
         startItem: (touch) =>
             climbDOM(touch.target, (node) => {
-                node.dataset[attrName] = ``;
+                node.classList.add(className);
                 inc(node);
             }),
         endItem: (touch) =>
             climbDOM(touch.target, (node) => {
                 if (dec(node) === 0) {
-                    delete node.dataset[attrName];
+                    node.classList.remove(className);
                 }
             })
     };
 });
 addHandler("tap", () => {
-    const attrName = "gjs:tapActive";
-    const addAttr = (node) => {
-        node.dataset[attrName] = ``;
+    const className = "gjs-tap-active";
+    const addClass = (node) => {
+        node.classList.add(className);
     };
-    const removeAttr = (node) => {
-        delete node.dataset[attrName];
+    const removeClass = (node) => {
+        node.classList.remove(className);
     };
     return {
         startItem: (touch) => {
-            if (touch.target.dataset[attrName] === undefined) {
+            if (touch.target.classList.contains(className) === false) {
                 touch.vars.valid = true;
                 touch.vars.active = true;
-                climbDOM(touch.target, addAttr);
+                climbDOM(touch.target, addClass);
             }
         },
         moveItem: (touch) => {
@@ -247,12 +247,12 @@ addHandler("tap", () => {
                 touch.vars.vector.magnitude > 20
             ) {
                 touch.vars.valid = false;
-                climbDOM(touch.target, removeAttr);
+                climbDOM(touch.target, removeClass);
             }
         },
         endItem: (touch) => {
             if (touch.vars.active === true) {
-                climbDOM(touch.target, removeAttr);
+                climbDOM(touch.target, removeClass);
             }
             const duration = touch.timestamp - touch.vars.start.timestamp;
             if (touch.vars.vector.magnitude > 20 || duration > 600) {
