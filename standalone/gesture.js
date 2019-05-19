@@ -36,7 +36,8 @@ var Gesture = (function () {
         identifier: touch.identifier,
         target: touch.target,
         sourceElement: touch.sourceElement,
-        id: touch.identifier
+        id: touch.identifier,
+        timestamp: touch.timestamp
     });
     const copyForSynth = (touch) => ({
         clientX: touch.clientX,
