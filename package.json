@@ -1,6 +1,6 @@
 {
   "name": "gesturesjs",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "lib for creating gesture recognition",
   "main": "index.js",
   "scripts": {
@@ -26,8 +26,7 @@
     "rollup": "^1.1.0",
     "rollup-plugin-terser": "^4.0.2"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "files": [
     "es6/",
     "standalone/",
