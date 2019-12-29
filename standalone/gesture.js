@@ -143,7 +143,7 @@ var Gesture = (function () {
         const createSynthTouch = (mouseEvt) => ({
             ...copyTouchEvent(mouseEvt),
             identifier: -10,
-            id: 10,
+            id: -10,
             target: currentMouseTarget,
             suorceElement: currentMouseTarget
         });
