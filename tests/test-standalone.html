@@ -38,22 +38,26 @@
         <input type="text" />
         <br />
         <button>Test</button>
-        <div style="height: 80px;">
+        <div style="height: 80px;" data-gjs-no-fire>
             <input type="number" />
         </div>
         <doric-button tabindex="0">Test</doric-button>
         <script>
-        Gestures(
-            "testing",
-            () => ({
-                startItem(touch) {
-                    console.log(touch);
-                },
-                move(touches) {
-                    console.log(touches);
-                }
-            })
-        );
+        window.addEventListener(
+            "touchstart",
+            console.log
+        )
+        // Gesture(
+        //     "testing",
+        //     () => ({
+        //         startItem(touch) {
+        //             console.log(touch);
+        //         },
+        //         move(touches) {
+        //             console.log(touches);
+        //         }
+        //     })
+        // );
         // window.addEventListener(
         //     "touchstart",
         //     evt => {

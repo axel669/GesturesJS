@@ -156,9 +156,22 @@ if (isMobile === false) {
             })
         );
     };
+    const checkNoFire = (start) => {
+        let current = start;
+        while (current !== null && current !== document.documentElement) {
+            if (current.dataset.gjsNoFire !== undefined) {
+                return true;
+            }
+            current = current.parentNode;
+        }
+        return false;
+    };
     window.addEventListener(
         "mousedown",
         (evt) => {
+            if (checkNoFire(evt.target) === true) {
+                return;
+            }
             if (evt.button === 0) {
                 mouseIsDown = true;
                 currentMouseTarget = evt.target;
