@@ -205,7 +205,11 @@ if (isMobile === false) {
 }
 const climbDOM = (start, func) => {
     let current = start;
-    while (current !== null && current !== document.documentElement) {
+    while (
+        current !== null &&
+        current !== document.documentElement &&
+        current.dataset.gjsStop === undefined
+    ) {
         func(current);
         current = current.parentNode;
     }
